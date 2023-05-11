@@ -14,7 +14,7 @@ import java.sql.Time;
 import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
-
+//--we can directly use the on click method on the button--//
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
     Button button;
     boolean running;
