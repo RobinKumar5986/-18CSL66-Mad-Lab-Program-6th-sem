@@ -8,6 +8,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
+// use less line
 
 public class MainActivity extends AppCompatActivity {
     Button b1, b2, b3, b4, b5, b6, b7, b8, b9, b0, bP, bMi, bMu, bD, bEq, bAC;
