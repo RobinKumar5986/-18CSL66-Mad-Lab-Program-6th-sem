@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<records>
+    <employee>
+        <City_Name>Bihar</City_Name>
+        <Latitude>40.7128</Latitude>
+        <Longitude>-75.0060</Longitude>
+        <Temperature>72.5</Temperature>
+        <Humidity>75</Humidity>
+    </employee>
+</records>

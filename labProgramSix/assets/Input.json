@@ -1,0 +1,9 @@
+{
+  "employee": {
+    "City_Name": "New York",
+    "Latitude": 40.7128,
+    "Longitude": -74.0060,
+    "Temperature": 72.5,
+    "Humidity": "65%"
+  }
+}
