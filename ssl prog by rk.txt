@@ -1,0 +1,649 @@
+//-------------------Porgram 1A---------------------//
+%{
+#include<stdio.h>
+int flag=0,op=0,id=0;
+%}
+%%
+[0-9]+ {id++;}
+[*|+] {op++;}
+[a-zA-z][a-zA-Z0-9]* {flag=1;}
+[/|-] {flag=1;}
+.|\n {return 0;}
+%%
+int main(){
+	printf("Enter the expressio:\n");
+	yylex();
+	
+	if(flag==1 || op+1!=id){
+		printf("Invalid Expression\n");
+	}else{
+		printf("Valid Expression\n");
+	}
+	return 1;
+}
+int yywrap()
+{
+	return 1;
+}
+//--------------------Porgram 1B-------------------//
+LEX
+---
+%{
+#include "y.tab.h"
+extern yyval;
+%}
+%%
+[0-9]+ {yyval=atoi(yytext); return num;}
+[+|-|*|%] {return yytext[0];}
+. {;}
+\n {return 0;}
+%%
+YACC
+---
+%{
+#include<stdio.h>
+#include<stdlib.h>
+%}
+
+%token num
+%left '+' '-'
+%left '*' '/'
+%%
+
+input:exp {printf("Sol :%d\n",$$);exit(0);}
+exp : exp '+' exp {$$=$1+$3;}
+	| exp '-' exp {$$=$1-$3;}
+	| exp '*' exp {$$=$1*$3;}
+	| exp '/' exp {$$=$1/$3;}
+	| num {$$=$1;}
+	;
+%%
+int yyerror(){
+	printf("Something went Wrong\n");
+	exit(0);
+}
+
+int main(){
+	printf("enter the expression:\n");
+	yyparse();
+}
+//------------------Program 2----------------------//
+LEX
+---
+%{
+#include "y.tab.h"
+extern yyval;
+%}
+%%
+a {return A;}
+b {return B;}
+\n {return '\n';}
+%%
+YACC
+---
+%{
+#include<stdio.h>
+#include<stdlib.h>
+%}
+%token A B
+%%
+inp : exp '\n' {printf("valid String\n");exit(0);}
+	exp : A s1 B
+	s1 : ; |A s1;
+%%
+int yyerror(){
+	printf("invalid string\n");
+	exit(0);
+}
+int main(){
+ printf("Enter the string :\n");
+ yyparse();
+ return 0;
+}
+//------------------program 3----------------------//
+#include<stdio.h>
+#include<string.h>
+#include<stdlib.h>
+
+char table[2][3][3]={{"aBa","",""},{"@","bB",""}};
+int size[2][3]={{3,0,0},{1,2,0}},n;
+char stack[100],s[20];
+
+void display(int i,int j){
+    int k;
+    for(k=0;k<=i;k++)
+        printf("%c",stack[k]);
+    printf("\t\t");
+    for(k=j;k<=n;k++)
+        printf("%c",s[k]);
+    printf("\n");
+    
+}
+int main()
+{
+    printf("-------GRAMMER--------\n");
+    printf("A -> aba \nB -> bB \nB -> @");
+    printf("\n------------------------\n");
+    printf("Enter the String with $ symbol in the end :\n");
+    scanf("%s",s);
+    n=strlen(s);
+    int i=-1;
+    stack[++i]='$';
+    stack[++i]='A';
+    
+    if(s[n-1]!='$') s[n]='$';
+    
+    printf("stack\t\tInput\n");
+    int j=0;
+    int row=0,col=0;
+    int f=1;
+    while(f==1){
+        if(stack[i]==s[j])
+        {
+            --i;++j;
+            
+            if(stack[i]=='$' && s[j]=='$'){
+                printf("$\t\t$\n");
+                printf("Grammer Successfull");
+                exit(0);
+            }
+            
+            else if(stack[i]=='$' && s[j]!='$'){ 
+                printf("Error");
+                exit(0);
+            }
+            display(i,j);
+        }
+        switch(stack[i]){
+            case 'A': row=0;break;
+            case 'B': row=1;break;
+        }
+        switch(s[j]){
+            case 'a': col=0;break;
+            case 'b': col=1;break;
+            case '$': col=2;break;
+        }
+        if(table[row][col][0]=='\0'){
+            printf("Error");
+            exit(1);
+        }
+        else if(table[row][col][0]=='@'){
+            i--;
+            display(i,j);
+            printf("\t\t\tEmpty symbol\n");
+        }else{
+            display(i,j);
+            printf("\t\t\tStack push\n");
+            for(int k=size[row][col]-1;k>=0;k--){
+                stack[i]=table[row][col][k];
+                i++;
+            }
+            display(i,j);
+            i--;
+        }
+    }
+    return 0;
+}
+//-------------------Program 4---------------------//
+#include <stdio.h>
+#include<string.h>
+int i=0,j=0,k=0,z=0,c=0;
+char stack[30],s[20];
+
+void check(){
+    for(z=0;z<c;z++){
+        if(stack[z]=='i' && stack[z+1]=='d'){
+            printf("%s\t%s\tReduce to E\n",stack,s);
+            stack[z]='E';
+            stack[z+1]='\0';
+            j++;
+        }
+    }
+    for(z=0;z<c;z++){
+        if(stack[z]=='E' && stack[z+1]=='+' && stack[z+2]=='E'){
+            printf("%s\t%s\tReduce to E\n",stack,s);
+            stack[z]='E';
+            stack[z+1]='\0';
+            stack[z+2]='\0';
+            i=i-2;
+        }
+    }
+    for(z=0;z<c;z++){
+        if(stack[z]=='E' && stack[z+1]=='*' && stack[z+2]=='E'){
+            printf("%s\t%s\tReduce to E\n",stack,s);
+            stack[z]='E';
+            stack[z+1]='\0';
+            stack[z+2]='\0';
+            i=i-2;
+        }
+    }
+    for(z=0;z<c;z++){
+        if(stack[z]=='(' && stack[z+1]=='E' && stack[z+2]==')'){
+            printf("%s\t%s\tReduce to E\n",stack,s);
+            stack[z]='E';
+            stack[z+1]='\0';
+            stack[z+2]='\0';
+            i=i-2;
+        }
+    }
+}
+int main()
+{
+    printf("-------RULES-------\n");
+    printf("E->E+E\nE->E*E\nE->(E)\nE->id\n");
+    printf("--------------------\n");
+    printf("Enter String :\n");
+    scanf("%s",s);
+    printf("Stack\tInput\tAction\n");
+    c=strlen(s);
+    for(i=0,j=0,k=0;j<c;i++,j++,k++){
+        if(s[j]=='i' && s[j+1]=='d'){
+            printf("%s\t%s\tShift\n",stack,s);
+            stack[i]='i';
+            stack[i+1]='d';
+            stack[i+2]='\0';
+            s[j]=' ';
+            s[j+1]=' ';
+            check();
+        }
+        else{
+            printf("%s\t%s\tShift\n",stack,s);
+            stack[i]=s[j];
+            stack[i+1]='\0';
+            s[j]=' ';
+            check();
+        }
+    }
+    if(strcmp(stack,"E")==0)
+        printf("%s\t%s\t\nStringn Accepted\n",stack,s);
+    else
+        printf("String Rejected\n");
+    return 0;
+}
+//-------------------Program 5---------------------//
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <ctype.h>
+int main(){
+	FILE *f1,*fp2;
+	f1=fopen("input.txt","r");
+	fp2=fopen("output.txt","w");
+	
+	char res[5],arg1[5],op[2],arg2[5];
+	while(!feof(f1)){
+		fscanf(f1,"%s %s %s %s",res,arg1,op,arg2);
+		//printf("%s %s %s %s\n",res,arg1,op,arg2);
+		if(strcmp(op,"+")==0){
+			fprintf(fp2,"MOV R0 , %s\n",arg1);
+			fprintf(fp2,"ADD %s , R0\n",arg2);
+			fprintf(fp2,"MOV %s , R0\n",res);
+		}
+		if(strcmp(op,"-")==0){
+			fprintf(fp2,"MOV R0 , %s\n",arg1);
+			fprintf(fp2,"SUB %s , R0\n",arg2);
+			fprintf(fp2,"MOV %s , R0\n",res);
+		}
+		if(strcmp(op,"*")==0){
+			fprintf(fp2,"MOV R0 , %s\n",arg1);
+			fprintf(fp2,"MUL %s , R0\n",arg2);
+			fprintf(fp2,"MOV %s , R0\n",res);
+		}
+		if(strcmp(op,"/")==0){
+			fprintf(fp2,"MOV R0 , %s\n",arg1);
+			fprintf(fp2,"DIV %s , R0\n",arg2);
+			fprintf(fp2,"MOV %s , R0\n",res);
+		}
+		if(strcmp(op,"=")==0){
+			fprintf(fp2,"MOV R0 , %s\n",arg1);
+			fprintf(fp2,"MOV %s , R0\n",res);
+		}
+	}
+	return 0;
+}
+//-------------------Program 6A---------------------//
+%{
+#include<stdio.h>
+int sl=0;
+int ml=0;
+%}
+%%
+"/*"[a-zA-Z0-9' '\t\n]+"*/" ml++;
+"//".* sl++;
+%%
+int main()
+{
+	yyin=fopen("f1.c","r");
+	yyout=fopen("f2.c","w");
+	yylex();
+	fclose(yyin);
+	fclose(yyout);
+	printf("\nNumber of single line comments are = %d\n",sl); 
+	printf("\nNumber of multiline comments are =%d\n",ml);
+	return 0;
+	
+}
+//-------------------Program 6B--------------------//
+LEX
+---
+%{
+#include <stdio.h>
+#include "y.tab.h"
+extern yylval;
+%}
+%%
+[+|-|*|/|=|<|>] {printf("operator is %s\n",yytext);return OP;}
+[0-9]+ {yylval = atoi(yytext); printf("numbers is %d\n",yylval); return DIGIT;}
+int|char|bool|float|for|do|while|if|else|return|void {printf("keyword is %s\n",yytext);return KEY;}
+[a-zA-Z0-9]+ {printf("identifier is %s\n",yytext);return ID;}
+. ;
+%%
+YACC
+----
+%{
+#include <stdio.h>
+#include <stdlib.h>
+int id=0, dig=0, key=0, op=0;
+%}
+%token DIGIT ID KEY OP
+%%
+input: DIGIT input { dig++; }
+| ID input { id++; }
+| KEY input { key++; }
+| OP input {op++;}
+| DIGIT { dig++; }
+| ID { id++; }
+| KEY { key++; }
+| OP { op++;}
+;
+%%
+extern FILE *yyin;
+
+int main()
+{
+	yyin = fopen("f2.c", "r");
+	while (!feof(yyin) ){
+		yyparse();
+	}
+	printf("numbers = %d\nKeywords = %d\nIdentifiers = %d\noperators = %d\n",dig,key,id, op);
+	return 0;
+}
+
+void yyerror() {
+	printf("EEK, parse error! Message: ");
+	exit(-1);
+}
+//-------------------Porgram 7---------------------//
+#include <stdio.h>
+int at[10],bt[10],rt[10];
+int tat=0,wt=0;
+int n=0;
+void rr();
+void srtf();
+int main()
+{
+    int ch;
+    printf("1.RR\n2.SRTF\n");
+    scanf("%d",&ch);
+    printf("Enter the number of process :\n");
+    scanf("%d",&n); 
+    for(int i=0;i<n;i++){
+        // printf("Arival time P%d:\n",i);
+        scanf("%d",&at[i]);
+        // printf("Burst time P%d:\n",i);
+        scanf("%d",&bt[i]);
+        rt[i]=bt[i];
+    }
+    if(ch==1) rr();
+    if(ch==2) srtf();
+
+    return 0;
+}
+void rr(){
+    int tq;
+    int t=0,rem;
+    rem=n;
+    int flag=0;
+    printf("Enter the TQ:\n");
+    scanf("%d",&tq);
+    printf("Process Number|Turn-around-time|Burst Time\n");
+    int c=0;
+    
+    while(rem!=0){
+        if(rt[c]<=tq && rt[c]>0){
+            t+=rt[c];
+            rt[c]=0;
+            flag=1;
+        }
+        else if(rt[c]>0){
+            t+=tq;
+            rt[c]-=tq;
+        }
+        if(rt[c]==0 && flag==1){
+            rem--;
+            flag=0;
+            
+            printf("P[%d]\t|\t%d\t|\t%d\n",c,t-at[c],t-at[c]-bt[c]);
+            tat+=t-at[c];
+            wt+=t-bt[c]-at[c];
+        }
+        if(c==n-1)
+            c=0;
+        else if(at[c+1]<=t)
+            c++;
+        else
+            c=0;
+    }
+    printf("Average TAT : %.3f\n",(float)tat/(float)n);
+    printf("Average WT : %.3f",(float)wt/(float)n);
+}
+void srtf(){
+    int t=0,time;
+    rt[9]=9999;
+    int rem=0;
+    int smallest;
+    printf("Process Number|Turn-around-time|Burst Time\n");
+    for(time=0;rem!=n;time++){
+        smallest=9;
+        for(int i=0;i<n;i++){
+            if(at[i]<=time && rt[i]<rt[smallest] && rt[i]>0)
+                smallest=i;
+        }
+        rt[smallest]--;
+        if(rt[smallest]==0){
+            rem++;
+            t+=time+1;
+            
+            printf("P[%d]\t|\t%d\t|\t%d\n",smallest+1,time+1-at[smallest],time+1-at[smallest]-bt[smallest]);
+            tat+=time+1-at[smallest];
+            wt+=time+1-at[smallest] -bt[smallest];
+        }
+    }
+    printf("\nAverage waiting time = %f\n",wt*1.0/n);
+    printf("Average Turnaround time = %f",tat*1.0/n);  
+}
+//-----------------------------------------------------------------//
+
+//-------------------Program 8------------------------------------//
+
+
+#include <stdio.h>
+
+int main()
+{
+    int max[10][10],alloc[10][10],need[10][10],avail[10],completed[10],safeseq[10];
+    int p,r,i,j,count,process;
+    printf("Enter the no of process:\n");
+    scanf("%d",&p);
+    printf("Enter the no of Resource:\n");
+    scanf("%d",&r);
+    printf("\n");
+    printf("Enter the allocation metrix for all the processes :\n");
+    for(i=0;i<p;i++)
+        for(j=0;j<r;j++)
+            scanf("%d",&alloc[i][j]);
+            
+    printf("\n");
+    printf("Enter the max metrix for all the processes :\n");
+    for(i=0;i<p;i++)
+        for(j=0;j<r;j++)
+            scanf("%d",&max[i][j]);
+    printf("\n");
+    printf("Enter the available :\n");
+    for(i=0;i<r;i++)
+        scanf("%d",&avail[i]);
+    
+    //--------calculating need---------//
+    for(i=0;i<p;i++)
+        for(j=0;j<r;j++)
+            need[i][j]=max[i][j] - alloc[i][j];
+    for(i=0;i<p;i++)
+        completed[i]=0;
+        
+    //--------main loop---------//
+    count=0;
+    do{
+        process=-1;
+        for(i=0;i<p;i++){
+            if(completed[i]==0){ //------Process yet not completed -----//
+                process=i;
+                for(j=0;j<r;j++){
+                    if(avail[j]<need[i][j]){
+                        process=-1;
+                        break;
+                    }
+                }
+            }
+            if(process!=-1) break;
+        }
+        if(process!=-1){
+            completed[process]=1;
+            safeseq[count]=process;
+            
+            count++;
+            printf("process %d is completed.\n",process);
+            //------new available-----//
+            for(i=0;i<r;i++){
+                avail[i]+=alloc[process][i];
+                max[process][i]=0;
+                alloc[process][i]=0;
+            }
+        }
+    }while(count!=p && process!=-1);
+    if(count==p){
+        printf("The process are in safe sequence :\n<");
+        for(i=0;i<p;i++){
+            printf(" %d",safeseq[i]);
+        }
+        printf(">");
+    }else{
+        printf("The process is not in safe sequence !!!");
+        
+    }
+    return 0;
+}
+//----------------------------------------------------------------------//
+
+//----------------------------Program 9---------------------------------//
+#include <stdio.h>
+#include <stdlib.h>
+int  stack[10],pages[20];
+int n=0,p=0;
+void fifo();
+int main(){
+    int ch;
+    printf("1.FIFO\n2.LRU\n");
+    scanf("%d",&ch);
+    printf("Enter the number of pages :\n");
+    scanf("%d",&n);
+    printf("Enter the number page segment :\n");
+    scanf("%d",&p);
+    
+    printf("Enter the pages :\n");
+    for(int i=0;i<n;i++){
+        scanf("%d",&pages[i]);
+    }
+    if(ch==1) fifo();
+    
+    return 0;
+}
+void fifo(){
+    int top=0;
+    int flag=0;
+    int ind=0;
+    for(int i=0;i<n;i++){
+        for(int j=0;j<p;j++){
+            if(pages[i]==stack[j]){
+                flag=1;
+                ind=j;
+            }
+        }
+        if(flag==1) {
+            top=ind;
+            printf("fault detected\n");
+        }
+        stack[top]=pages[i];
+        for(int k=2;k>=0;k--){
+            printf("%d  ",stack[k]);
+        }
+        printf("\n");
+        top++;
+        if(top>=p){
+            top=0;
+        }
+        flag=0;
+        
+    }
+}
+void lru()
+{
+  int i, j = 0, k, m, flag = 0, cnt = 0, top = 0;
+  int f=p;
+ 
+  
+  printf ("\n\tPAGE\t FRAMES\t\t FAULTS");
+  for (i = 0; i < n; i++)
+    {
+      for (k = 0; k < f; k++)
+	{
+	  if (stack[k] == pages[i])
+	    {
+	      flag = 1;
+	      break;
+	    }
+	}
+      printf ("\n\t%d\t", pages[i]);
+      if (j != f && flag != 1)
+	{
+	  stack[top] = pages[i];
+	  j++;
+	  if (j != f)
+	    top++;
+	}
+      else
+	{
+	  if (flag != 1)
+	    {
+	      for (k = 0; k < top; k++)
+		       stack[k] = stack[k + 1];
+	      stack[top] = pages[i];
+	    }
+	  if (flag == 1)
+	    {
+	      for (m = k; m < top; m++)
+		    stack[m] = pages[m + 1];
+	      stack[top] = pages[i];
+	    }
+	}
+      for (k = 0; k < f; k++)
+	        printf (" %d", stack[k]);
+      if (flag == 0)
+	{
+	  printf ("\tPage-fault%d", cnt);
+	  cnt++;
+	}
+      else
+	printf ("\tNo page fault");
+      flag = 0;
+    }
+}
